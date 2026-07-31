@@ -1,6 +1,6 @@
 version=1
-id=2106657533
-title=Peri's Random Scenarios
+id=PeriRandomScenarios
+title=Peri's Random Scenarios 42.20 (Pillow Fork)
 description=This is a fork of the Project Zomboid mod "Pillow's Random Scenarios".
 description=I have adapted it for Project Zomboid version 4.20, as it is a mod I use very often and truly enjoy.
 
@@ -50,5 +50,5 @@ description=FIre Sale - Start in the middle of the mall, but a number of electri
 description=
 
 description=The Test Subject - Something doesn't feel right. You wake in a cave, at the bottom of a massive secret military base. 
-tags=Build 41;Build 42;Hardmode;Silly/Fun
+tags=Build 42;Hardmode;Silly/Fun
 visibility=public
