@@ -1,0 +1,10 @@
+name=Peri's Random Scenarios (Pillow Fork)
+id=PeriRandomScenarios
+description=A collection of challenges as random scenarios.
+poster=poster.png
+modversion=42.0-1
+pzversion=42.20
+versionMin=42.60
+incompatible=
+author=pillow/peri
+modurl=https://github.com/crispiboi/Pillow-s-Random-Scenarios
