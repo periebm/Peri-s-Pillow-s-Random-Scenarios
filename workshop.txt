@@ -4,6 +4,12 @@ title=Peri's Random Scenarios 42.20 (Pillow Fork)
 description=This is a fork of the Project Zomboid mod "Pillow's Random Scenarios".
 description=I have adapted it for Project Zomboid version 4.20, as it is a mod I use very often and truly enjoy.
 
+description=2026-07-31 - Forked and updated to 42.20 STABLE
+
+
+
+description=ORIGINAL DESCRIPTION.
+
 description=A collection of random starting scenarios created as challenges.
 
 description=2025-01-02 - Adjustments to The Test Subject, scripting checks will stop after 24 hours. Player now starts with a stone in hand.
