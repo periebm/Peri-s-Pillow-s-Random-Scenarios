@@ -219,7 +219,14 @@ HospitalChallenge.OnInitWorld = function()
 end
 
 HospitalChallenge.setSandBoxVars = function()
-
+	local presets = getSandboxPresets()
+	if presets and presets:indexOf("pillow") ~= -1 then
+		local options = getSandboxOptions()
+		options:loadPresetFile("pillow")
+		options:toLua()
+		options:updateFromLua()
+		options:applySettings()
+	end
 end
 
 

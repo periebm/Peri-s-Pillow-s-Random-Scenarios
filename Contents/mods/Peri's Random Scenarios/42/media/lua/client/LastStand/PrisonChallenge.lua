@@ -331,7 +331,14 @@ PrisonChallenge.OnInitWorld = function()
 end
 
 PrisonChallenge.setSandBoxVars = function()
-
+	local presets = getSandboxPresets()
+	if presets and presets:indexOf("pillow") ~= -1 then
+		local options = getSandboxOptions()
+		options:loadPresetFile("pillow")
+		options:toLua()
+		options:updateFromLua()
+		options:applySettings()
+	end
 end
 
 
@@ -348,21 +355,15 @@ PrisonChallenge.Render = function()
 end
 
 PrisonChallenge.spawns = {
-{xcell = 25, ycell = 39, x = 179, y = 130,z=0}, -- Rosewood,  cell 1, north block ID:472
-{xcell = 25, ycell = 39, x = 198, y = 127,z=0}, -- Rosewood,  cell 2, north block ID:473
-{xcell = 25, ycell = 39, x = 179, y = 240,z=0}, -- Rosewood,  cell 3, south block ID:475
-{xcell = 25, ycell = 39, x = 198, y = 225,z=0}, -- Rosewood,  cell 4, south block ID:476
-{xcell = 25, ycell = 39, x = 179, y = 210,z=0}, -- Rosewood, cell 5, south block ID:648
-{xcell = 25, ycell = 39, x = 179, y = 231,z=0}, -- Rosewood, cell 6, south block ID:649
-{xcell = 25, ycell = 39, x = 179, y = 234, z = 1}, -- Rosewood, cell 7, south block ID:650
-{xcell = 25, ycell = 39, x = 198, y = 234, z = 1} -- Rosewood, cell 8, south block ID:651
-
-
+{xcell = 25, ycell = 39, x = 130, y = 62, z = 0},
+{xcell = 24, ycell = 39, x = 155, y = 65, z = 0},
+{xcell = 25, ycell = 39, x = 130, y = 150, z = 0},
+{xcell = 24, ycell = 39, x = 165, y = 3, z = 0}
 }
 
 
 
-local spawnselection = ZombRand(8)+1;
+local spawnselection = ZombRand(4)+1;
 local xcell = PrisonChallenge.spawns[spawnselection].xcell;
 local ycell = PrisonChallenge.spawns[spawnselection].ycell;
 local x = PrisonChallenge.spawns[spawnselection].x;
