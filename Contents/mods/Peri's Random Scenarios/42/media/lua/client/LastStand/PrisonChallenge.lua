@@ -58,20 +58,20 @@ PrisonChallenge.DifficultyCheck = function()
 			pillowmod.extrazombs = ZombRand(50,150);
 			pillowmod.difficultyloops = ZombRand(3)+1;
 			pillowmod.alarmcounter = 3;
-			pillowmod.spawnincellchance = ZombRand(1,3);
+			pillowmod.spawnincellchance = 6;
 	elseif pillowmod.brutalstart == true
 		then
 			--brtual variables
 			pillowmod.extrazombs = ZombRand(100,200);
 			pillowmod.difficultyloops = ZombRand(6)+1;
 			pillowmod.alarmcounter = 1;
-			pillowmod.spawnincellchance = ZombRand(1,2);
+			pillowmod.spawnincellchance = 4;
 	else
 			--normal variables
 			pillowmod.extrazombs = 0;
 			pillowmod.difficultyloops = 1;
 			pillowmod.alarmcounter = ZombRand(5,20);
-			pillowmod.spawnincellchance = ZombRand(1,4);
+			pillowmod.spawnincellchance = 8;
 	end
 
 	--play the sound
@@ -101,12 +101,14 @@ PrisonChallenge.DifficultyCheck = function()
 	if pillowmod.mainentranceseen == nil then pillowmod.mainentranceseen = false end
 	if pillowmod.northcellblock == nil then pillowmod.northcellblock = false end
 	if pillowmod.southcellblock == nil then pillowmod.southcellblock = false end
+	if pillowmod.externalcellblock == nil then pillowmod.externalcellblock = false end
+	if pillowmod.solitarycellblock == nil then pillowmod.solitarycellblock = false end
+	if pillowmod.backcellrow == nil then pillowmod.backcellrow = false end
 	if pillowmod.zombct == nil then pillowmod.zombct = 104 end
 	if pillowmod.largediningroomseen == nil then pillowmod.largediningroomseen = false end
 	if pillowmod.smalldiningroomseen == nil then pillowmod.smalldiningroomseen = false end
 	if pillowmod.infirmaryseen == nil then pillowmod.infirmaryseen = false end
 	if pillowmod.patioseen == nil then pillowmod.patioseen = false end
-	if pillowmod.externalcellsseen == nil then pillowmod.externalcellsseen = false end
 	if pillowmod.internalparkingseen == nil then pillowmod.internalparkingseen = false end
 	if pillowmod.studyroomseen == nil then pillowmod.studyroomseen = false end
 	if pillowmod.woodshopseen == nil then pillowmod.woodshopseen = false end
@@ -145,16 +147,15 @@ PrisonChallenge.EveryTenMinutes = function ()
 
 
 	local areaSpawns = {
-		{marker = "largediningroomseen", label = "large dining room", x = 7578, y = 11792, count = 20},
-		{marker = "smalldiningroomseen", label = "small dining room", x = 7623, y = 11793, count = 10},
-		{marker = "infirmaryseen", label = "infirmary", x = 7518, y = 11846, count = 8},
-		{marker = "patioseen", label = "patio", x = 7492, y = 11808, count = 15},
-		{marker = "externalcellsseen", label = "external cells", x = 7372, y = 11709, count = 15},
-		{marker = "internalparkingseen", label = "internal parking", x = 7392, y = 11791, count = 12},
-		{marker = "studyroomseen", label = "study room", x = 7440, y = 11756, count = 8},
-		{marker = "woodshopseen", label = "woodshop", x = 7441, y = 11858, count = 10},
-		{marker = "prisonentranceseen", label = "prison entrance", x = 7673, y = 11793, count = 15},
-		{marker = "mainentranceseen", label = "main entrance", x = 7705, y = 11885, count = 30, direCount = 45, brutalCount = 60},
+		{marker = "largediningroomseen", label = "large dining room", x = 7578, y = 11792, count = 30},
+		{marker = "smalldiningroomseen", label = "small dining room", x = 7623, y = 11793, count = 20},
+		{marker = "infirmaryseen", label = "infirmary", x = 7518, y = 11846, count = 18},
+		{marker = "patioseen", label = "patio", x = 7492, y = 11808, count = 25},
+		{marker = "internalparkingseen", label = "internal parking", x = 7392, y = 11791, count = 22},
+		{marker = "studyroomseen", label = "study room", x = 7440, y = 11756, count = 18},
+		{marker = "woodshopseen", label = "woodshop", x = 7441, y = 11858, count = 20},
+		{marker = "prisonentranceseen", label = "prison entrance", x = 7673, y = 11793, count = 25},
+		{marker = "mainentranceseen", label = "main entrance", x = 7705, y = 11885, count = 40, direCount = 55, brutalCount = 70},
 	}
 
 	for _, area in ipairs(areaSpawns) do
@@ -181,31 +182,62 @@ PrisonChallenge.SpawnZombiesInCells = function()
 	if pl == nil then return end
 	local cell = getCell()
 	pillowmod = pl:getModData()
+	local function addLinePoints(points, block)
+		local dx = block.xEnd - block.xStart
+		local dy = block.yEnd - block.yStart
+		local distance = math.max(math.abs(dx), math.abs(dy))
+		local spacing = block.spacing or 3
+		local zStart = block.zStart or 0
+		local zEnd = block.zEnd or zStart
+
+		for z = zStart, zEnd do
+			local lastX = nil
+			local lastY = nil
+			for offset = 0, distance, spacing do
+				local progress = distance == 0 and 0 or offset / distance
+				local x = math.floor(block.xStart + dx * progress + 0.5)
+				local y = math.floor(block.yStart + dy * progress + 0.5)
+				table.insert(points, {x = x, y = y, z = z})
+				lastX = x
+				lastY = y
+			end
+			if lastX ~= block.xEnd or lastY ~= block.yEnd then
+				table.insert(points, {x = block.xEnd, y = block.yEnd, z = z})
+			end
+		end
+	end
 
 	-- Each cell row is three tiles apart.  The supplied endpoints differ by one
 	-- X tile, so both columns are tested and used for the two cell faces.
 	local blocks = {
 		{marker = "southcellblock", label = "south", yStart = 11862, yEnd = 11806},
 		{marker = "northcellblock", label = "north", yStart = 11778, yEnd = 11723},
+		{marker = "externalcellblock", label = "external", xStart = 7352, yStart = 11714, xEnd = 7387, yEnd = 11702, zStart = 0, zEnd = 0},
+		{marker = "solitarycellblock", label = "solitary", xStart = 7348, yStart = 11764, xEnd = 7374, yEnd = 11764, zStart = 0, zEnd = 0},
+		{marker = "backcellrow", label = "back row", xStart = 7623, yStart = 11862, xEnd = 7622, yEnd = 11722, zStart = 0, zEnd = 4},
 	}
 
 	for _, block in ipairs(blocks) do
 		if pillowmod[block.marker] == nil then pillowmod[block.marker] = false end
 		if pillowmod[block.marker] == false then
 			local points = {}
-			for y = block.yStart, block.yEnd, -3 do
-				table.insert(points, {x = 7632, y = y, z = 0})
-				table.insert(points, {x = 7633, y = y, z = 0})
-				table.insert(points, {x = 7632, y = y, z = 1})
-				table.insert(points, {x = 7633, y = y, z = 1})
-			end
-			-- The final supplied cell coordinate is not exactly three tiles from
-			-- the preceding row, so retain it as an explicit final row.
-			if points[#points].y ~= block.yEnd then
-				table.insert(points, {x = 7632, y = block.yEnd, z = 0})
-				table.insert(points, {x = 7633, y = block.yEnd, z = 0})
-				table.insert(points, {x = 7632, y = block.yEnd, z = 1})
-				table.insert(points, {x = 7633, y = block.yEnd, z = 1})
+			if block.xStart ~= nil then
+				addLinePoints(points, block)
+			else
+				for y = block.yStart, block.yEnd, -3 do
+					for z = 0, 4 do
+						table.insert(points, {x = 7632, y = y, z = z})
+						table.insert(points, {x = 7633, y = y, z = z})
+					end
+				end
+				-- Retain the supplied endpoint when it is not exactly three tiles
+				-- from the preceding row.
+				if points[#points].y ~= block.yEnd then
+					for z = 0, 4 do
+						table.insert(points, {x = 7632, y = block.yEnd, z = z})
+						table.insert(points, {x = 7633, y = block.yEnd, z = z})
+					end
+				end
 			end
 
 			-- Chunks at opposite ends of the prison are not always loaded together.
@@ -292,12 +324,11 @@ building = pl:getCurrentSquare():getRoom():getBuilding();
 			pl:setPrimaryHandItem(wpn);
 			pl:setSecondaryHandItem(wpn);
 
-			--roll for building key
-			if ZombRand(100)+1 == ZombRand(100)+1 then
-				print("Lucky enough to win the building key")
-				sq = pl:getCurrentSquare();
-				keyid = sq:getBuilding():getDef():getKeyId();
-				inv:AddItem("Base.Key1"):setKeyID(keyid);
+			-- Rare chance to start with a key matching the prison building.
+			if ZombRand(100) + 1 == ZombRand(100) + 1 then
+				local sq = pl:getCurrentSquare()
+				local keyid = sq:getBuilding():getDef():getKeyId()
+				inv:AddItem("Base.Key1"):setKeyId(keyid)
 			end
 
 
@@ -351,15 +382,14 @@ PrisonChallenge.Render = function()
 end
 
 PrisonChallenge.spawns = {
-{xcell = 25, ycell = 39, x = 130, y = 62, z = 0},
-{xcell = 24, ycell = 39, x = 155, y = 65, z = 0},
-{xcell = 25, ycell = 39, x = 130, y = 150, z = 0},
-{xcell = 24, ycell = 39, x = 165, y = 3, z = 0}
+	{xcell = 25, ycell = 39, x = 130, y = 62, z = 0},
+	{xcell = 25, ycell = 39, x = 130, y = 44, z = 0},
+	{xcell = 24, ycell = 39, x = 155, y = 108, z = 0}
 }
 
 
 
-local spawnselection = ZombRand(4)+1;
+local spawnselection = ZombRand(#PrisonChallenge.spawns) + 1;
 local xcell = PrisonChallenge.spawns[spawnselection].xcell;
 local ycell = PrisonChallenge.spawns[spawnselection].ycell;
 local x = PrisonChallenge.spawns[spawnselection].x;
