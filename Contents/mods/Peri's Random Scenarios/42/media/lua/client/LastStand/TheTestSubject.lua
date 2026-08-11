@@ -19,23 +19,32 @@ TheTestSubject.OnNewGame = function()
 
 
 local pl = getPlayer();
+if pl == nil then return end
 local inv = pl:getInventory();
 pillowmod = pl:getModData();
 
-pillowmod.caves1done = false;
-pillowmod.caves2done = false;
-pillowmod.security1done = false;
-pillowmod.morguedone = false;
-pillowmod.operatingdone  = false;
-pillowmod.cafeteriadone = false;
-pillowmod.armorydone = false;
-pillowmod.controldone = false;
-pillowmod.stairsdone = false;
-pillowmod.lobbydone = false;
-pillowmod.dorm1done = false;
-pillowmod.dorm2done = false;
-pillowmod.dorm3done = false;
-pillowmod.dorm4done = false;
+local spawnMarkers = {
+	"caves1done",
+	"caves2done",
+	"security1done",
+	"morguedone",
+	"operatingdone",
+	"cafeteriadone",
+	"armorydone",
+	"controldone",
+	"stairsdone",
+	"lobbydone",
+	"dorm1done",
+	"dorm2done",
+	"dorm3done",
+	"dorm4done",
+}
+
+for _, marker in ipairs(spawnMarkers) do
+	if pillowmod[marker] == nil then
+		pillowmod[marker] = false
+	end
+end
 
 		--check if it's a new game
 		print(pl:getHoursSurvived());
@@ -74,6 +83,7 @@ end
 
 TheTestSubject.EveryTenMinutes = function()
 	pl=getPlayer();
+	if pl == nil then return end
 	pillowmod = pl:getModData();
 
 	if pillowmod.caves1done == false
@@ -155,7 +165,7 @@ TheTestSubject.EveryTenMinutes = function()
 	    pillowmod.controldone = true;
 	end 
 
-	if dorm1done == false
+	if pillowmod.dorm1done == false
 		and getCell():getGridSquare(5565,12475,-14) ~= nil
 	then
 		print("spawning zombies in dorm 1")
@@ -163,7 +173,7 @@ TheTestSubject.EveryTenMinutes = function()
 	    pillowmod.dorm1done = true;		
 	end
 
-	if dorm2done == false
+	if pillowmod.dorm2done == false
 		and getCell():getGridSquare(5558,12496,-14) ~= nil
 	then
 		print("spawning zombies in dorm 2")
@@ -171,7 +181,7 @@ TheTestSubject.EveryTenMinutes = function()
 	    pillowmod.dorm2done = true;		
 	end
 
-	if dorm3done == false
+	if pillowmod.dorm3done == false
 		and getCell():getGridSquare(5560,12496,-13) ~= nil
 	then
 		print("spawning zombies in dorm 3")
@@ -179,7 +189,7 @@ TheTestSubject.EveryTenMinutes = function()
 	    pillowmod.dorm3done = true;		
 	end 
 
-	if dorm4done == false
+	if pillowmod.dorm4done == false
 		and getCell():getGridSquare(5578,12499,-13) ~= nil
 	then
 		print("spawning zombies in dorm 4")
