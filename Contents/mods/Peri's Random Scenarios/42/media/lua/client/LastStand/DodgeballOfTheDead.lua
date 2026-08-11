@@ -93,24 +93,13 @@ DodgeballofTheDead.OnInitWorld = function()
 end
 
 DodgeballofTheDead.setSandBoxVars = function()
-local options= {}
-	if getSandboxPresets():indexOf("pillow")
-		
-		then
-		options = getSandboxOptions();
-		options:loadPresetFile("pillow");
-		options:toLua();
-		options:updateFromLua();
-		options:applySettings();
-		SandboxVars.TimeSinceApo =  getSandboxOptions():getTimeSinceApo();
-		SandboxVars.WaterShutModifier = 1;
-		SandboxVars.ElecShutModifier = 1;
-		
-	else 
-		SandboxVars = require "Sandbox/SixMonthsLater"
-		
-
-
+	local presets = getSandboxPresets()
+	if presets and presets:indexOf("pillow") ~= -1 then
+		local options = getSandboxOptions()
+		options:loadPresetFile("pillow")
+		options:toLua()
+		options:updateFromLua()
+		options:applySettings()
 	end
 
 		--start time is returned as the index of the list, not the time.
