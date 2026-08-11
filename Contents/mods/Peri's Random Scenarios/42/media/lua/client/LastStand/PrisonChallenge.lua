@@ -9,7 +9,6 @@ PrisonChallenge.OnGameStart = function()
 
     		
 Events.OnGameStart.Add(PrisonChallenge.OnNewGame);
-Events.OnCreatePlayer.Add(PrisonChallenge.DireCheck);
 Events.EveryTenMinutes.Add(PrisonChallenge.EveryTenMinutes);
 
 
@@ -92,22 +91,35 @@ PrisonChallenge.DifficultyCheck = function()
 	else end
 
 	print("Params -difficultyloops:" .. pillowmod.difficultyloops .. " spawn in cell chance:" .. pillowmod.spawnincellchance .. "alarmcounter:" .. pillowmod.alarmcounter);
-	pillowmod.wasalarmed = false;
-	pillowmod.breakroomseen = false;
-	pillowmod.diningroomseen = false;
-	pillowmod.outdoorrecseen = false; 
-	pillowmod.parkinglotseen = false;
-	pillowmod.mainentranceseen = false;
-	pillowmod.northcellblock = false;
-	pillowmod.southcellblock = false;
-	pillowmod.zombct = 104;
+	-- Keep progress from an existing save.  OnGameStart is also called when a
+	-- saved challenge is loaded, so these values must only be initialized once.
+	if pillowmod.wasalarmed == nil then pillowmod.wasalarmed = false end
+	if pillowmod.breakroomseen == nil then pillowmod.breakroomseen = false end
+	if pillowmod.diningroomseen == nil then pillowmod.diningroomseen = false end
+	if pillowmod.outdoorrecseen == nil then pillowmod.outdoorrecseen = false end
+	if pillowmod.parkinglotseen == nil then pillowmod.parkinglotseen = false end
+	if pillowmod.mainentranceseen == nil then pillowmod.mainentranceseen = false end
+	if pillowmod.northcellblock == nil then pillowmod.northcellblock = false end
+	if pillowmod.southcellblock == nil then pillowmod.southcellblock = false end
+	if pillowmod.zombct == nil then pillowmod.zombct = 104 end
+	if pillowmod.largediningroomseen == nil then pillowmod.largediningroomseen = false end
+	if pillowmod.smalldiningroomseen == nil then pillowmod.smalldiningroomseen = false end
+	if pillowmod.infirmaryseen == nil then pillowmod.infirmaryseen = false end
+	if pillowmod.patioseen == nil then pillowmod.patioseen = false end
+	if pillowmod.externalcellsseen == nil then pillowmod.externalcellsseen = false end
+	if pillowmod.internalparkingseen == nil then pillowmod.internalparkingseen = false end
+	if pillowmod.studyroomseen == nil then pillowmod.studyroomseen = false end
+	if pillowmod.woodshopseen == nil then pillowmod.woodshopseen = false end
+	if pillowmod.prisonentranceseen == nil then pillowmod.prisonentranceseen = false end
 
 
 end--end difficulty check
 
 PrisonChallenge.EveryTenMinutes = function ()
 	pl=getPlayer();
+	if pl == nil then return end
 	pillowmod = pl:getModData();
+	PrisonChallenge.SpawnZombiesInCells();
 	--start alarm check stuff
 	if pl:getCurrentSquare():isOutside() == true 
 				or pl:getCurrentSquare():getRoom() == nil
@@ -132,119 +144,103 @@ PrisonChallenge.EveryTenMinutes = function ()
 	--else end
 
 
-	if pillowmod.diningroomseen == false
-	 and getCell():getGridSquare(7647,11877,0) ~= nil
-	 then 
-		-- spawn more zombies in areas
-		zombz = ZombRand(pillowmod.zombct);
-		print("spawning horde in dining room size:"  .. zombz );
-		addZombiesInOutfit(7647, 11877, 0, zombz, Inmate, 0);
-		pillowmod.diningroomseen = true;
-	end 
+	local areaSpawns = {
+		{marker = "largediningroomseen", label = "large dining room", x = 7578, y = 11792, count = 20},
+		{marker = "smalldiningroomseen", label = "small dining room", x = 7623, y = 11793, count = 10},
+		{marker = "infirmaryseen", label = "infirmary", x = 7518, y = 11846, count = 8},
+		{marker = "patioseen", label = "patio", x = 7492, y = 11808, count = 15},
+		{marker = "externalcellsseen", label = "external cells", x = 7372, y = 11709, count = 15},
+		{marker = "internalparkingseen", label = "internal parking", x = 7392, y = 11791, count = 12},
+		{marker = "studyroomseen", label = "study room", x = 7440, y = 11756, count = 8},
+		{marker = "woodshopseen", label = "woodshop", x = 7441, y = 11858, count = 10},
+		{marker = "prisonentranceseen", label = "prison entrance", x = 7673, y = 11793, count = 15},
+		{marker = "mainentranceseen", label = "main entrance", x = 7705, y = 11885, count = 30, direCount = 45, brutalCount = 60},
+	}
 
-	if pillowmod.breakroomseen == false
-	and getCell():getGridSquare(7659,11847,0) ~= nil
-	then 				
-		zombz = ZombRand(pillowmod.zombct);
-		print("spawning horde in break room size:" .. zombz);
-		addZombiesInOutfit(7659, 11847, 0, zombz, Inmate, 0);
-		pillowmod.breakroomseen = true;
-	end
-
-	if pillowmod.outdoorrecseen == false
-	and getCell():getGridSquare(7640,11918,0) ~= nil
-	then 
-		zombz = ZombRand(pillowmod.zombct);
-		print("spawning horde in outdoor rec size:" .. zombz);
-		addZombiesInOutfit(7640, 11918, 0, zombz, Inmate, 0);
-		pillowmod.outdoorrecseen = true;
-	end 
-
-	if  pillowmod.parkinglotseen == false 
-	and getCell():getGridSquare(7615,11782,0) ~= nil
-	then 
-		zombz = ZombRand(pillowmod.zombct);
-		print("spawning horde north of parking lot size:" .. zombz);
-		addZombiesInOutfit(7615, 11782, 0, zombz, Inmate , 0);
-		pillowmod.parkinglotseen = true;
-	end 
-
-	-- spawn zombies outside main door, doesn't matter what difficulty 
-	if pillowmod.mainentranceseen == false
-	and getCell():getGridSquare(7722,11884,0) ~= nil
-	then
-		for i=0, pillowmod.difficultyloops do
-			zombz = ZombRand(pillowmod.zombct);
-			print("spawning horde outside main entrance size:" .. zombz);
-			addZombiesInOutfit(7722, 11884, 0, zombz, Inmate, 0);
+	for _, area in ipairs(areaSpawns) do
+		if pillowmod[area.marker] == nil then pillowmod[area.marker] = false end
+		if pillowmod[area.marker] == false and getCell():getGridSquare(area.x, area.y, 0) ~= nil then
+			local zombz = area.count
+			if pillowmod.brutalstart == true and area.brutalCount ~= nil then
+				zombz = area.brutalCount
+			elseif pillowmod.direstart == true and area.direCount ~= nil then
+				zombz = area.direCount
+			end
+			print("spawning horde in " .. area.label .. " size:" .. zombz)
+			addZombiesInOutfit(area.x, area.y, 0, zombz, "Inmate", 0)
+			pillowmod[area.marker] = true
 		end
-		pillowmod.mainentranceseen = true;
-	end 	
+	end
 
 
 end --end every 10 mins
 
 
 PrisonChallenge.SpawnZombiesInCells = function()
-	print("Run spawn zombies in cells.");
+	local pl = getPlayer()
+	if pl == nil then return end
+	local cell = getCell()
+	pillowmod = pl:getModData()
 
-	--algorithm to spawn zombies
-	--south bblock east side 7682 x 11943 to 7682 x 11908, south block west side 7696 x 11943 to 7696 x 11908
-	--north block east side is 7682 x 11854 to 768x x 11819, north block west side 7696 x 11855 to 7696 x 11819
-	-- new prison cell is every 3 squares
-	--104 total cells
+	-- Each cell row is three tiles apart.  The supplied endpoints differ by one
+	-- X tile, so both columns are tested and used for the two cell faces.
+	local blocks = {
+		{marker = "southcellblock", label = "south", yStart = 11862, yEnd = 11806},
+		{marker = "northcellblock", label = "north", yStart = 11778, yEnd = 11723},
+	}
 
-	local xposeast = 7682;
-	local xposwest  = 7696;
-	local zpos = 0;
-	local ypos = 0;
-	local yposnorth = 11855;
-	local yposnorthmin = 11817;
-	local ypossouthmin = 11907;
-	local ypossouth = 11943;
-	local sq = getCell():getGridSquare(7683,11943,0);
-	pillowmod = getPlayer():getModData();
-	--createHordeFromTo(7714,11851,7714,11851,1);
+	for _, block in ipairs(blocks) do
+		if pillowmod[block.marker] == nil then pillowmod[block.marker] = false end
+		if pillowmod[block.marker] == false then
+			local points = {}
+			for y = block.yStart, block.yEnd, -3 do
+				table.insert(points, {x = 7632, y = y, z = 0})
+				table.insert(points, {x = 7633, y = y, z = 0})
+				table.insert(points, {x = 7632, y = y, z = 1})
+				table.insert(points, {x = 7633, y = y, z = 1})
+			end
+			-- The final supplied cell coordinate is not exactly three tiles from
+			-- the preceding row, so retain it as an explicit final row.
+			if points[#points].y ~= block.yEnd then
+				table.insert(points, {x = 7632, y = block.yEnd, z = 0})
+				table.insert(points, {x = 7633, y = block.yEnd, z = 0})
+				table.insert(points, {x = 7632, y = block.yEnd, z = 1})
+				table.insert(points, {x = 7633, y = block.yEnd, z = 1})
+			end
 
+			-- Chunks at opposite ends of the prison are not always loaded together.
+			-- Remember each processed point so available cells can spawn immediately
+			-- without duplicating them when the remaining chunks load later.
+			local pointStateKey = block.marker .. "points"
+			local pointState = pillowmod[pointStateKey]
+			if pointState == nil then
+				pointState = {}
+				pillowmod[pointStateKey] = pointState
+			end
 
-	-- do south side
-	while ypossouth >= ypossouthmin do
-		--do south side, east
-		if ZombRand(pillowmod.spawnincellchance)+1 == 1 
-		 then
-				print("spawn 1 at :" .. xposeast .. " x " .. ypossouth .. " x " .. zpos);
-				addZombiesInOutfit(xposeast,ypossouth, 0, 1, Inmate, 0);
-				addZombiesInOutfit(xposeast,ypossouth, 1, 1, Inmate, 0);
+			local pending = 0
+			for _, point in ipairs(points) do
+				local pointKey = point.x .. "_" .. point.y .. "_" .. point.z
+				if pointState[pointKey] ~= true then
+					if cell:getGridSquare(point.x, point.y, point.z) ~= nil then
+						if ZombRand(pillowmod.spawnincellchance) + 1 == 1 then
+							addZombiesInOutfit(point.x, point.y, point.z, 1, "Inmate", 0)
+						end
+						pointState[pointKey] = true
+					else
+						pending = pending + 1
+					end
+				end
+			end
+
+			if pending == 0 then
+				pillowmod[block.marker] = true
+				print("[PrisonChallenge] " .. block.label .. " cell block spawn completed")
+			else
+				print("[PrisonChallenge] " .. block.label .. " cell block has " .. pending .. " unloaded points; spawn postponed")
+			end
 		end
-		--do south side, west
-		if ZombRand(pillowmod.spawnincellchance)+1 == 1 
-		 then
-				print("spawn 1 at :" .. xposeast .. " x " .. ypossouth .. " x " .. zpos);
-				addZombiesInOutfit(xposwest,ypossouth, 0, 1, Inmate, 0);
-				addZombiesInOutfit(xposwest,ypossouth, 1, 1, Inmate, 0);
-		end
-		ypossouth = ypossouth-1;
-	end --end south side
-
-
--- do north side
-	while yposnorth >= yposnorthmin do
-		--do north side, east
-		if ZombRand(pillowmod.spawnincellchance)+1 == 1  
-		 then
-				print("spawn 1 at :" .. xposeast .. " x " .. yposnorth .. " x " .. zpos);
-				addZombiesInOutfit(xposeast,yposnorth, 0, 1, Inmate, 0);
-				addZombiesInOutfit(xposeast,yposnorth, 1, 1, Inmate, 0);
-		end
-		--do north side, west
-		if ZombRand(pillowmod.spawnincellchance)+1 == 1 
-		 then
-				print("spawn 1 at :" .. xposeast .. " x " .. yposnorth .. " x " .. zpos);
-				addZombiesInOutfit(xposwest,yposnorth, 0, 1, Inmate, 0);
-				addZombiesInOutfit(xposwest,yposnorth, 1, 1, Inmate, 0);
-		end
-		yposnorth = yposnorth-1;
-	end --end north side
+	end
 
 end --end spawn zombies in cell function
 
@@ -311,9 +307,9 @@ building = pl:getCurrentSquare():getRoom():getBuilding();
 
 		--make noise so zombies try to get player
 		addSound(getPlayer(), getPlayer():getX(), getPlayer():getY(), 0, 500, 500); 
-		addSound(getPlayer(), 7708, 11878, 0, 500, 500); --main desk
-		addSound(getPlayer(), 7659, 11882, 0, 500, 500); --hall outside dining hall
-		addSound(getPlayer(), 7655, 11912, 0, 500, 500); --locker room near basketball court
+		addSound(getPlayer(), 7578, 11792, 0, 500, 500); --large dining room
+		addSound(getPlayer(), 7492, 11808, 0, 500, 500); --patio
+		addSound(getPlayer(), 7705, 11885, 0, 500, 500); --main entrance
 
 		else end --end of new game check loop, anything below this is not going to happen
 

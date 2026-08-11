@@ -86,6 +86,7 @@ end
 EnterAreaChallenge.OnInitWorld = function()
 
 	Events.OnGameStart.Add(EnterAreaChallenge.OnGameStart);
+	EnterAreaChallenge.setSandBoxVars();
 
 
 end
