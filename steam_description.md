@@ -15,6 +15,12 @@ It really helps the mod reach more players and motivates me to continue maintain
 [hr][/hr]
 [h2]📜 Latest Updates[/h2]
 
+[b]2026-08-20[/b]
+[list]
+[*]Updated Hospital Wake Up Challenge spawn locations across West Point, Muldraugh, Rosewood, the isolated clinic, and Fallas Lake.
+[*]Added St. Peregrin Hospital as a new starting location.
+[/list]
+
 [b]2026-08-11[/b]
 [list]
 [*]Fixed Prison Challenge zombie spawns for the updated Build 42 prison layout.
